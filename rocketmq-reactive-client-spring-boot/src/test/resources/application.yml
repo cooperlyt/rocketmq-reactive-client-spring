@@ -1,0 +1,19 @@
+rocketmq:
+  name-server: 192.168.1.21:9876
+  producer:
+    group: group-test-producer
+
+  bindings:
+    testChannel-in-0:
+      consumer:
+        topic: test-topic
+        group: group-test-consumer
+        retry:
+          maxAttempts: 3
+          backoff:
+            delay: 10000
+            multiplier: 0.4
+
+logging:
+  level:
+    io.github.cooperlyt: TRACE
