@@ -1,7 +1,6 @@
 package io.github.cooperlyt.rocketmq.client
 
 import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 import java.util.function.Consumer
 
 abstract class TypedConsumer<T>(private val consumer: Consumer<T>): Consumer<T> {
