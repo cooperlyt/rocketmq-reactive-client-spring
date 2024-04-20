@@ -1,5 +1,5 @@
 plugins {
-    id("org.springframework.boot") version "3.1.10"
+    id("org.springframework.boot") version "3.1.11"
     id("io.spring.dependency-management") version "1.1.4"
     id("com.palantir.docker") version "0.35.0"
     kotlin("jvm") version "1.9.23"

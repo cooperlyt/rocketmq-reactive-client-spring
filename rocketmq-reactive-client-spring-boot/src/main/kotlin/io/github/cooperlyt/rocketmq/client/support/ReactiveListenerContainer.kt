@@ -1,6 +1,8 @@
 package io.github.cooperlyt.rocketmq.client.support
 
 import io.github.cooperlyt.rocketmq.client.ConsumerResult
+import io.github.cooperlyt.rocketmq.client.TypedConsumer
+import io.github.cooperlyt.rocketmq.client.TypedReplayConsumer
 import org.apache.rocketmq.client.AccessChannel
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer
 import org.apache.rocketmq.client.consumer.MessageSelector
@@ -111,12 +113,34 @@ open class ReactiveListenerContainer(
         check(!this.isRunning) { "container already running. $name" }
 
         val consumerBean = applicationContext.getBean(name)
+
+        var genericInterface: ParameterizedType? = null
+        if (consumerBean::class.java.genericInterfaces.isNotEmpty() &&
+            consumerBean::class.java.genericInterfaces[0] is ParameterizedType){
+            genericInterface = consumerBean::class.java.genericInterfaces[0] as ParameterizedType
+        }
+
+
         val consumerFunction : (Any) -> Mono<Any> = when (consumerBean) {
             is Function1<*,*> -> {
                 consumerBean as (Any) -> Mono<Any>
             }
 
+            is java.util.function.Function<*,*> -> {
+                if (genericInterface == null && consumerBean is TypedReplayConsumer<*>){
+                    genericInterface = consumerBean.type
+                }
+                object: (Any) -> Mono<Any> {
+                    override fun invoke(p1: Any): Mono<Any> {
+                        return (consumerBean as java.util.function.Function<Any,*>).apply(p1) as Mono<Any>
+                    }
+                }
+            }
+
             is Consumer<*> -> {
+                if (genericInterface == null && consumerBean is TypedConsumer<*>){
+                    genericInterface = consumerBean.type
+                }
                 object: (Any) -> Mono<Any>{
                     override fun invoke(p1: Any): Mono<Any> {
                         (consumerBean as Consumer<Any>).accept(p1)
@@ -126,13 +150,15 @@ open class ReactiveListenerContainer(
             }
 
             else -> {
-                throw IllegalArgumentException("consumer bean type error")
+                throw IllegalArgumentException("$name - consumer bean type error ${consumerBean::class.java.name}")
             }
         }
 
-        val requestMessageType: Type
+        if (genericInterface == null){
+            throw IllegalArgumentException("$name - consumer bean type error")
+        }
 
-        val genericInterface = consumerBean::class.java.genericInterfaces[0] as ParameterizedType
+        //val genericInterface = consumerBean::class.java.genericInterfaces[0] as ParameterizedType
         val actualTypeArguments = genericInterface.actualTypeArguments
         val firstTypeArgument = actualTypeArguments[0]
 
@@ -142,6 +168,7 @@ open class ReactiveListenerContainer(
 
         log.debug("{} consumer is request Spring message : {}",name, isMessage)
 
+        val requestMessageType: Type
         if (isMessage) {
             val messageType = firstTypeArgument as ParameterizedType
             val messageGenericType = messageType.actualTypeArguments[0]

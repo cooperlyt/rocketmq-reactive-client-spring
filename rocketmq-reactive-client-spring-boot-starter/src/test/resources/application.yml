@@ -4,7 +4,7 @@ rocketmq:
     group: group-test-producer
 
   bindings:
-    testChannel-in-0:
+    testFunction1-in-0:
       consumer:
         topic: test-topic
         group: group-test-consumer

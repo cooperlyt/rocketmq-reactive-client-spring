@@ -16,8 +16,13 @@ repositories {
 
 dependencies {
 
-    implementation("org.apache.rocketmq:rocketmq-spring-boot-starter:2.3.0")
-    implementation(project(":rocketmq-reactive-client-spring-boot"))
+    api("org.apache.rocketmq:rocketmq-spring-boot-starter:2.3.0"){
+        exclude(group = "com.alibaba", module = "fastjson") // fast json BigDecimal bug
+    }
+    api(project(":rocketmq-reactive-client-spring-boot"))
+    api("com.alibaba:fastjson:2.0.49")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.test {
@@ -36,6 +41,12 @@ configure<PublishingExtension> {
     }
 }
 
+
+tasks.getByName<Jar>("jar") {
+    enabled = true
+    // Remove `plain` postfix from jar file name
+    archiveClassifier.set("")
+}
 
 kotlin {
     jvmToolchain(21)

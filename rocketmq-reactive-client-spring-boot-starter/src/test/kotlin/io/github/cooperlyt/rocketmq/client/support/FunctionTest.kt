@@ -1,5 +1,6 @@
 package io.github.cooperlyt.rocketmq.client.support
 
+import io.github.cooperlyt.rocketmq.client.TypedConsumer
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -31,10 +32,15 @@ class FunctionTest{
     fun test(){
 
 
-        val consumerFunction = applicationContext.getBean("contractCreateChannel") as (Any) -> Mono<Any>
+        val consumerFunction = applicationContext.getBean("testConsumer1")
 
         //println(consumerFunction::class.java.genericInterfaces[0]) //.typeParameters[0].name
 
+        if (consumerFunction is TypedConsumer<*>){
+            println(consumerFunction.type)
+        }
+
+        println(consumerFunction::class.java.genericInterfaces[0].typeName)
 
         val genericInterface = consumerFunction::class.java.genericInterfaces[0] as ParameterizedType
         val actualTypeArguments = genericInterface.actualTypeArguments
@@ -51,18 +57,18 @@ class FunctionTest{
             println(messageGenericType)
         }
 
-
-
-        Flux.create(messageEmitter())
-            .flatMap { (consumerFunction.invoke(MessageBuilder.withPayload(it).build()) as Mono<Any>)
-                .defaultIfEmpty("success")
-                .doOnNext { if (it is String) println("return string $it" ) else println("return replay $it")  }
-
-            }
-
-
-            .then()
-            .subscribe()
+//        val targetFunction = consumerFunction as (Any) -> Mono<Void>
+//
+//        Flux.create(messageEmitter())
+//            .flatMap { (consumerFunction.invoke(MessageBuilder.withPayload(it).build()) as Mono<Any>)
+//                .defaultIfEmpty("success")
+//                .doOnNext { if (it is String) println("return string $it" ) else println("return replay $it")  }
+//
+//            }
+//
+//
+//            .then()
+//            .subscribe()
 
 
     }
