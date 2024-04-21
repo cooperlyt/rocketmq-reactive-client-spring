@@ -2,7 +2,6 @@ rocketmq:
   name-server: 192.168.1.21:9876
   producer:
     group: group-test-producer
-
   bindings:
     testFunction1-in-0:
       consumer:
