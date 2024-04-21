@@ -55,7 +55,7 @@ consumer
 
     @Bean
     fun testFunction1() = object: TypedReplayConsumer<String>(Function { msg ->
-            Mono.just("${msg}").thenReturn("asdf")
+            Mono.just("${msg}").thenReturn("replay")
         }) {}
 
 ```
