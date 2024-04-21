@@ -43,7 +43,7 @@ consumer
 
     @Bean
     fun testReplayChannel(): (Message<String>) -> Mono<ReplayData> = { str ->
-        Mono.just("${str.payload}").doOnNext(::println).thenReturn(ConsumerResult.SUCCESS)
+        Mono.just("${str.payload}").doOnNext(::println).thenReturn(ReplayData())
     }
 
 
