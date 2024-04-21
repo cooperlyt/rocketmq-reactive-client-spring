@@ -2,9 +2,10 @@
 
 This project aims to help developers quickly integrate [RocketMQ-Spring](https://github.com/apache/rocketmq-spring) with Reactive.
 
-Features## 
+##Features 
 
 - [x] Consuming messages from RocketMQ with Reactive
+- [x] Using Spring content ObjectMapper deserialization
 
 
 ## Usage
